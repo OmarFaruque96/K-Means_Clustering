@@ -1,0 +1,53 @@
+import numpy as np
+import pandas as pd
+
+#X, _ = make_blobs(centers=3, n_features=2,
+                 #cluster_std=0.2,  random_state=0)
+
+#data load
+coloums = ['Age','Annual Income (k$)','Spending Score (1-100)'];
+data2 = pd.read_csv("Mall_Customers.csv", names = coloums)
+
+data3 = data2.iloc[:,:].values
+
+data = pd.DataFrame({
+    'age': data3[1:,0],
+    'income': data3[1:,1],
+    'score': data3[1:,-1]
+})
+#print(data.age.values)
+
+# Initialize the centroids
+c1 = (22,17,76)
+c2 = (35,19,99)
+c3 = (20,21,66)
+
+
+def calculate_euclidean(centroid, X, Y, Z):
+    distances = []
+    
+    cX, cY, cZ = centroid 
+    for x, y, z in list(zip(X, Y, Z)):
+        
+        first_cluster_distance  = (np.float(x) - cX) ** 2
+        second_cluster_distance = (np.float(y) - cY) ** 2
+        third_cluster_distance  = (np.float(z) - cZ) ** 2
+        
+        distance = np.sqrt(first_cluster_distance + second_cluster_distance + third_cluster_distance)
+        
+        distances.append(distance)
+        
+    return distances
+
+
+data['C1_Distance'] = calculate_euclidean(c1, data.age.values, data.income.values, data.score.values)
+data['C2_Distance'] = calculate_euclidean(c2, data.age.values, data.income.values, data.score.values)
+data['C3_Distance'] = calculate_euclidean(c3, data.age.values, data.income.values, data.score.values)
+
+#print(data)
+
+data['Cluster'] = data[['C1_Distance', 'C2_Distance', 'C3_Distance']].apply(np.argmin, axis =1)
+    
+data['Cluster'] = data['Cluster'].map({'C1_Distance': 'R', 'C2_Distance': 'G', 'C3_Distance': 'B'})
+
+#print(data)
